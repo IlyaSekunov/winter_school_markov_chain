@@ -1,6 +1,9 @@
 import random
 import collections
 
+import random
+import collections
+
 class MarkovChainGenerator:
     """
     Класс для работы с цепями Маркова.
@@ -32,7 +35,6 @@ class MarkovChainGenerator:
         self.chain_size = chain_size
         
         if self.mode == 'uniform':
-            # Простая реализация (как в исходном коде)
             self.chain = collections.defaultdict(list)
             for i in range(len(words) - chain_size):
                 key = tuple(words[i:i + chain_size])
@@ -40,7 +42,6 @@ class MarkovChainGenerator:
                 self.chain[key].append(next_word)
             
         else:  # probabilistic mode
-            # Реализация с учётом частот
             freq_chain = collections.defaultdict(lambda: collections.defaultdict(int))
             for i in range(len(words) - chain_size):
                 key = tuple(words[i:i + chain_size])
@@ -116,20 +117,6 @@ class MarkovChainGenerator:
         - Всего переходов: {total_transitions}
         - Среднее количество вариантов на ключ: {total_transitions / total_keys:.1f}
         """
-        
-        # Пример самого частого перехода
-        if self.chain:
-            sample_key = list(self.chain.keys())[0]
-            if self.mode == 'probabilistic' and self.chain[sample_key]:
-                # Для вероятностного режима показываем распределение
-                from collections import Counter
-                counter = Counter(self.chain[sample_key])
-                most_common = counter.most_common(3)
-                stats += f"\nПример для ключа '{' '.join(sample_key)}':\n"
-                for word, count in most_common:
-                    prob = count / len(self.chain[sample_key])
-                    stats += f"  '{word}': {count} раз ({prob:.1%})\n"
-        
         return stats
         
 def read_text(filename):
@@ -139,12 +126,29 @@ def read_text(filename):
     return text
     
 # ==== ИЗМЕНЯЕМ ЭТИ ПАРАМЕТРЫ ====
-FILENAME = 'lermontov.txt'  # Имя файла с текстом для обучения
-CHAIN_SIZE = 3            # Длина цепочки
-TEXT_LENGTH = 25          # Сколько слов сгенерировать
+TRAIN_FILES = [
+    'geyne.txt',
+    'okudzhava.txt',
+    'cvetaeva.txt', 
+    'ahmatova.txt', 
+    'blok.txt', 
+    'mayakovskiy.txt', 
+    'pushkin.txt', 
+    'lermontov.txt', 
+    'tutchev.txt'
+]
+CHAIN_SIZE = 2            # Длина цепочки
+TEXT_LENGTH = 30          # Сколько слов сгенерировать
 # ================================
 
-training_text = read_text(FILENAME)
+training_text = ""
+for filename in TRAIN_FILES:
+  training_text += read_text(filename)
+
+markov_chain = MarkovChainGenerator(mode='probalistic')
+markov_chain.train(text=training_text, chain_size=CHAIN_SIZE)
+
+print(markov_chain.get_stats())
 
 markov_chain = MarkovChainGenerator(mode='probalistic')
 markov_chain.train(text=training_text, chain_size=CHAIN_SIZE)
